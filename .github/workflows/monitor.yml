@@ -1,0 +1,73 @@
+name: Myntra Monitor - Weekdays
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    # Weekdays (Mon-Fri) only: IST 2PM-8PM = UTC 8:30AM-2:30PM
+    # Every 10 minutes
+    - cron: '30 8 * * 1-5'
+    - cron: '40 8 * * 1-5'
+    - cron: '50 8 * * 1-5'
+    - cron: '0 9 * * 1-5'
+    - cron: '10 9 * * 1-5'
+    - cron: '20 9 * * 1-5'
+    - cron: '30 9 * * 1-5'
+    - cron: '40 9 * * 1-5'
+    - cron: '50 9 * * 1-5'
+    - cron: '0 10 * * 1-5'
+    - cron: '10 10 * * 1-5'
+    - cron: '20 10 * * 1-5'
+    - cron: '30 10 * * 1-5'
+    - cron: '40 10 * * 1-5'
+    - cron: '50 10 * * 1-5'
+    - cron: '0 11 * * 1-5'
+    - cron: '10 11 * * 1-5'
+    - cron: '20 11 * * 1-5'
+    - cron: '30 11 * * 1-5'
+    - cron: '40 11 * * 1-5'
+    - cron: '50 11 * * 1-5'
+    - cron: '0 12 * * 1-5'
+    - cron: '10 12 * * 1-5'
+    - cron: '20 12 * * 1-5'
+    - cron: '30 12 * * 1-5'
+    - cron: '40 12 * * 1-5'
+    - cron: '50 12 * * 1-5'
+    - cron: '0 13 * * 1-5'
+    - cron: '10 13 * * 1-5'
+    - cron: '20 13 * * 1-5'
+    - cron: '30 13 * * 1-5'
+    - cron: '40 13 * * 1-5'
+    - cron: '50 13 * * 1-5'
+    - cron: '0 14 * * 1-5'
+    - cron: '10 14 * * 1-5'
+    - cron: '20 14 * * 1-5'
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install requests==2.31.0
+      - name: Restore state
+        uses: actions/cache@v4
+        with:
+          path: state.json
+          key: monitor-state-${{ github.run_id }}
+          restore-keys: monitor-state-
+      - name: Run monitor
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_IDS: ${{ secrets.TELEGRAM_CHAT_IDS }}
+          SCRAPER_API_KEY: ${{ secrets.SCRAPER_API_KEY }}
+        run: python monitor_once.py
+      - name: Save state
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: state.json
+          key: monitor-state-${{ github.run_id }}
